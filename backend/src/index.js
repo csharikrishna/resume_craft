@@ -14,21 +14,28 @@ const app = express();
 
 const normalizeOrigin = (value) => String(value || '').trim().replace(/\/+$/, '');
 
-const configuredOrigins = (process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'http://localhost:5173')
-  .split(',')
+const configuredOrigins = [process.env.CORS_ORIGIN, process.env.FRONTEND_URL]
+  .filter(Boolean)
+  .flatMap((value) => String(value).split(','))
   .map(normalizeOrigin)
   .filter(Boolean);
 
-app.use(cors({
+if (!configuredOrigins.length) {
+  configuredOrigins.push('http://localhost:5173');
+}
+
+const corsOptions = {
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
     const requestOrigin = normalizeOrigin(origin);
     const isAllowed = configuredOrigins.includes('*') || configuredOrigins.includes(requestOrigin);
-    if (isAllowed) return callback(null, true);
-    return callback(new Error(`CORS blocked for origin: ${origin}`));
+    return callback(null, isAllowed);
   },
   credentials: true
-}));
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json({ limit: '10mb' }));
