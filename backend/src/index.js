@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const compression = require('compression');
 require('./services/firebase');
 
 const authRoutes = require('./routes/auth');
@@ -36,6 +38,13 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
+
+// Security and compression middleware
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  contentSecurityPolicy: false // Disable CSP for API
+}));
+app.use(compression());
 
 app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json({ limit: '10mb' }));
@@ -76,8 +85,14 @@ app.use('/api/export', exportRoutes);
 app.use('/api/payments', paymentRoutes);
 
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
+  const isDev = process.env.NODE_ENV !== 'production';
+  if (isDev) console.error(err.stack);
+  else console.error(`[ERROR] ${err.message}`);
+  
+  res.status(err.status || 500).json({
+    error: isDev ? err.message : 'Internal server error',
+    ...(isDev && { stack: err.stack })
+  });
 });
 
 const PORT = process.env.PORT || 5000;

@@ -202,9 +202,9 @@ export default function Builder() {
           </div>
           <div className="flex gap-2 items-center">
             <div className="text-xs text-gray-500">
-              {autoSaveStatus === 'saving' && 'ðŸ’¾ Saving...'}
-              {autoSaveStatus === 'saved' && lastSaved && `âœ“ Saved ${new Date(lastSaved).toLocaleTimeString()}`}
-              {autoSaveStatus === 'error' && 'âš  Save failed'}
+              {autoSaveStatus === 'saving' && '💾 Saving...'}
+              {autoSaveStatus === 'saved' && lastSaved && `✓ Saved ${new Date(lastSaved).toLocaleTimeString()}`}
+              {autoSaveStatus === 'error' && '⚠ Save failed'}
             </div>
             <button
               onClick={() => setShowTemplateSelector(true)}
@@ -249,7 +249,7 @@ export default function Builder() {
               <div className="p-4">
                 {activeTab === 'paste' && (
                   <div>
-                    <p className="text-xs text-gray-500 mb-3">Paste anything â€” LinkedIn bio, old resume text, or rough notes. AI will structure it perfectly.</p>
+                    <p className="text-xs text-gray-500 mb-3">Paste anything — LinkedIn bio, old resume text, or rough notes. AI will structure it perfectly.</p>
                     <textarea
                       value={pasteText}
                       onChange={e => setPasteText(e.target.value)}

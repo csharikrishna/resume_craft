@@ -58,8 +58,6 @@ router.get('/:id', async (req, res) => {
   try {
     const resume = await getById('resumes', req.params.id);
     if (!resume || resume.userId !== req.user.id) return res.status(404).json({ error: 'Resume not found' });
-
-    if (!resume) return res.status(404).json({ error: 'Resume not found' });
     res.json(resume);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch resume' });
@@ -71,8 +69,6 @@ router.put('/:id', async (req, res) => {
   try {
     const existing = await getById('resumes', req.params.id);
     if (!existing || existing.userId !== req.user.id) return res.status(404).json({ error: 'Resume not found' });
-
-    if (!existing) return res.status(404).json({ error: 'Resume not found' });
 
     const { title, jobRole, resumeData, templateId, atsScore } = req.body;
     const nextVersion = (existing.versionNumber || 1) + 1;
@@ -111,8 +107,6 @@ router.delete('/:id', async (req, res) => {
     const resume = await getById('resumes', req.params.id);
     if (!resume || resume.userId !== req.user.id) return res.status(404).json({ error: 'Resume not found' });
 
-    if (!resume) return res.status(404).json({ error: 'Resume not found' });
-
     await deleteDoc('resumes', req.params.id);
     res.json({ message: 'Resume deleted' });
   } catch (err) {
@@ -125,8 +119,6 @@ router.post('/:id/duplicate', async (req, res) => {
   try {
     const original = await getById('resumes', req.params.id);
     if (!original || original.userId !== req.user.id) return res.status(404).json({ error: 'Resume not found' });
-
-    if (!original) return res.status(404).json({ error: 'Resume not found' });
 
     const now = new Date().toISOString();
     const copy = await createDoc('resumes', {
@@ -157,8 +149,6 @@ router.get('/:id/versions', async (req, res) => {
     const resume = await getById('resumes', req.params.id);
     if (!resume || resume.userId !== req.user.id) return res.status(404).json({ error: 'Resume not found' });
 
-    if (!resume) return res.status(404).json({ error: 'Resume not found' });
-
     const versions = await findAllByField('resumeVersions', 'resumeId', req.params.id);
     versions.sort((a, b) => (b.version || 0) - (a.version || 0));
     res.json(versions);
@@ -172,8 +162,6 @@ router.post('/:id/share', async (req, res) => {
   try {
     const resume = await getById('resumes', req.params.id);
     if (!resume || resume.userId !== req.user.id) return res.status(404).json({ error: 'Resume not found' });
-
-    if (!resume) return res.status(404).json({ error: 'Resume not found' });
 
     const slug = randomUUID().split('-')[0];
     await updateDoc('resumes', req.params.id, {
@@ -193,8 +181,6 @@ router.get('/public/:slug', async (req, res) => {
   try {
     const resume = await findOneByField('resumes', 'publicSlug', req.params.slug);
     if (!resume || !resume.isPublic) return res.status(404).json({ error: 'Resume not found' });
-
-    if (!resume) return res.status(404).json({ error: 'Resume not found' });
     res.json(resume);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch resume' });
