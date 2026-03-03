@@ -85,6 +85,8 @@ You should see:
 {"status":"OK","timestamp":"..."}
 ```
 
+Or visit the root URL to see all available endpoints: `https://your-backend-url.onrender.com/`
+
 ---
 
 ## 2️⃣ Deploy Frontend to Vercel
