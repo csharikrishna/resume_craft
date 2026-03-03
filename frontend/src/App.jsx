@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ResumeProvider } from './context/ResumeContext';
 import Home from './pages/Home';
@@ -38,6 +39,7 @@ export default function App() {
             <Route path="/editor/:id" element={<PrivateRoute><Editor /></PrivateRoute>} />
             <Route path="/preview/:id" element={<PrivateRoute><Preview /></PrivateRoute>} />
           </Routes>
+          <Analytics />
         </BrowserRouter>
       </ResumeProvider>
     </AuthProvider>
