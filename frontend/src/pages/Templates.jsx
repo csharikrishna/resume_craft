@@ -378,8 +378,8 @@ export default function Templates() {
               </button>
             </div>
             <div className="flex items-center justify-between px-8 py-4 border-b border-gray-200">
-              <span className={`text-sm font-bold px-4 py-2 rounded-full ${preview.isPremium ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
-                {preview.isPremium ? '₹39 Premium' : 'Free'}
+              <span className="text-sm font-bold px-4 py-2 rounded-full bg-emerald-100 text-emerald-700">
+                100% FREE
               </span>
               <Link to={`/builder?template=${preview.id}`} className="group bg-slate-700 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-800 hover:shadow-lg transition-all duration-300 flex items-center gap-2">
                 Use This Template
@@ -402,14 +402,14 @@ export default function Templates() {
           </div>
           <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-4 leading-tight">Choose your perfect look</h1>
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">Professional templates that pass ATS and impress recruiters</p>
-          <div className="flex items-center justify-center gap-6 mt-6">
+          <div className="flex items-center justify-center gap-6 mt-6 flex-wrap">
             <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-4 py-2.5 rounded-xl">
               <CheckCircle className="h-5 w-5 text-emerald-600" />
-              <span className="text-emerald-700 text-sm font-bold">3 Free Templates</span>
+              <span className="text-emerald-700 text-sm font-bold">10 Templates - 100% FREE</span>
             </div>
-            <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 px-4 py-2.5 rounded-xl">
-              <Lock className="h-5 w-5 text-amber-700" />
-              <span className="text-amber-700 text-sm font-bold">7 Premium at ₹39</span>
+            <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 px-4 py-2.5 rounded-xl">
+              <CheckCircle className="h-5 w-5 text-blue-600" />
+              <span className="text-blue-700 text-sm font-bold">No Payment Required</span>
             </div>
           </div>
         </div>
@@ -431,8 +431,7 @@ export default function Templates() {
         {/* Template Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
           {filtered.map(template => (
-            <div key={template.id} className="bg-white border-2 rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-2 group cursor-pointer"
-              style={{ borderColor: template.isPremium ? '#fbbf24' : '#10b981' }}>
+            <div key={template.id} className="bg-white border-2 border-emerald-200 rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-2 group cursor-pointer hover:border-emerald-400">
 
               {/* Mini preview */}
               <div className="relative overflow-hidden bg-white" style={{ height: '200px' }}
@@ -448,9 +447,9 @@ export default function Templates() {
                   </button>
                 </div>                {/* Badge */}
                 <div className="absolute top-2 right-2">
-                  {template.isPremium
-                    ? <span className="bg-purple-600 text-white text-xs px-3 py-1.5 rounded-full font-bold flex items-center gap-1.5 shadow-lg"><Lock className="h-3 w-3" />₹39</span>
-                    : <span className="bg-green-500 text-white text-xs px-3 py-1.5 rounded-full font-bold flex items-center gap-1.5 shadow-lg"><CheckCircle className="h-3 w-3" />Free</span>}
+                  <span className="bg-emerald-500 text-white text-xs px-3 py-1.5 rounded-full font-bold flex items-center gap-1.5 shadow-lg">
+                    <CheckCircle className="h-3 w-3" />FREE
+                  </span>
                 </div>
               </div>
 

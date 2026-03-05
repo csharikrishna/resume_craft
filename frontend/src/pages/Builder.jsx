@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, FileText, Type, ChevronRight, Sparkles, Save, Plus, Trash2, X, Eye, Layout } from 'lucide-react';
+import { Upload, FileText, Type, ChevronRight, Sparkles, Save, Plus, Trash2, X, Eye, Layout, CheckCircle } from 'lucide-react';
 import api from '../utils/api';
 import { useResume, EMPTY_RESUME } from '../context/ResumeContext';
 import ResumePreview from '../components/ResumePreview';
@@ -8,6 +8,7 @@ import ATSScore from '../components/ATSScore/ATSScore';
 import ChatAssistant from '../components/ChatAssistant/ChatAssistant';
 import Navbar from '../components/Navbar';
 import TemplateSelector from '../components/TemplateSelector';
+import { sanitizeResumeData } from '../utils/resumeSanitizer';
 
 const JOB_ROLES = [
   'Software Engineer', 'Frontend Developer', 'Backend Developer', 'Full Stack Developer',
@@ -56,7 +57,7 @@ export default function Builder() {
     setError('');
     try {
       const res = await api.post('/api/ai/parse-text', { text: pasteText });
-      setResumeData(res.data.resumeData);
+      setResumeData(sanitizeResumeData(res.data.resumeData));
       setSuccess('AI has built your resume! Review and edit below.');
       setActiveTab('form');
       setPasteText('');
@@ -80,7 +81,7 @@ export default function Builder() {
       const formData = new FormData();
       formData.append('file', file);
       const res = await api.post('/api/ai/parse-upload', formData);
-      setResumeData(res.data.resumeData);
+      setResumeData(sanitizeResumeData(res.data.resumeData));
       setSuccess('Resume uploaded and rebuilt by AI!');
       setActiveTab('form');
     } catch (err) {
@@ -97,7 +98,7 @@ export default function Builder() {
     setError('');
     try {
       const res = await api.post('/api/ai/optimize', { resumeData, jobRole });
-      setResumeData(res.data.resumeData);
+      setResumeData(sanitizeResumeData(res.data.resumeData));
       setSuccess(`Resume optimized for ${jobRole}!`);
     } catch (err) {
       setError(err.response?.data?.error || 'Optimization failed');
@@ -160,72 +161,88 @@ export default function Builder() {
   const SECTIONS = ['personal', 'summary', 'experience', 'education', 'skills', 'projects', 'achievements', 'certifications', 'languages'];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Alerts */}
         {error && (
-          <div className="mb-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center justify-between animate-in">
-            <span className="text-red-700 text-sm">{error}</span>
-            <button onClick={() => setError('')}><X className="h-4 w-4 text-red-400" /></button>
+          <div className="mb-4 bg-red-50 border-l-4 border-red-500 rounded-xl px-5 py-4 flex items-center justify-between animate-in shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="bg-red-100 rounded-full p-2">
+                <X className="h-4 w-4 text-red-600" />
+              </div>
+              <span className="text-red-700 text-sm font-medium">{error}</span>
+            </div>
+            <button onClick={() => setError('')} className="text-red-400 hover:text-red-600 transition-colors">
+              <X className="h-5 w-5" />
+            </button>
           </div>
         )}
         {success && (
-          <div className="mb-4 bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex items-center justify-between animate-in">
-            <span className="text-green-700 text-sm">{success}</span>
-            <button onClick={() => setSuccess('')}><X className="h-4 w-4 text-green-400" /></button>
+          <div className="mb-4 bg-green-50 border-l-4 border-green-500 rounded-xl px-5 py-4 flex items-center justify-between animate-in shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="bg-green-100 rounded-full p-2">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+              </div>
+              <span className="text-green-700 text-sm font-medium">{success}</span>
+            </div>
+            <button onClick={() => setSuccess('')} className="text-green-400 hover:text-green-600 transition-colors">
+              <X className="h-5 w-5" />
+            </button>
           </div>
         )}
 
         {/* Top controls */}
-        <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-          <div className="flex items-center gap-3 flex-wrap">
-            <select
-              value={jobRole}
-              onChange={e => setJobRole(e.target.value)}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-slate-500 transition-colors"
-            >
-              <option value="">Select job role (optional)</option>
-              {JOB_ROLES.map(r => <option key={r}>{r}</option>)}
-            </select>
-            {jobRole && (
-              <button
-                onClick={handleOptimize}
-                disabled={aiLoading}
-                className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 disabled:opacity-50 transition-colors"
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-4 mb-6">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-3 flex-wrap">
+              <select
+                value={jobRole}
+                onChange={e => setJobRole(e.target.value)}
+                className="text-sm border-2 border-gray-200 rounded-xl px-4 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-all"
               >
-                <Sparkles className="h-4 w-4" />
-                {aiLoading ? 'Optimizing...' : 'AI Optimize'}
-              </button>
-            )}
-          </div>
-          <div className="flex gap-2 items-center">
-            <div className="text-xs text-gray-500">
-              {autoSaveStatus === 'saving' && '💾 Saving...'}
-              {autoSaveStatus === 'saved' && lastSaved && `✓ Saved ${new Date(lastSaved).toLocaleTimeString()}`}
-              {autoSaveStatus === 'error' && '⚠ Save failed'}
+                <option value="">Select job role (optional)</option>
+                {JOB_ROLES.map(r => <option key={r}>{r}</option>)}
+              </select>
+              {jobRole && (
+                <button
+                  onClick={handleOptimize}
+                  disabled={aiLoading}
+                  className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:from-purple-700 hover:to-purple-800 disabled:opacity-50 transition-all shadow-md hover:shadow-lg"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  {aiLoading ? 'Optimizing...' : 'AI Optimize'}
+                </button>
+              )}
             </div>
-            <button
-              onClick={() => setShowTemplateSelector(true)}
-              className="flex items-center gap-2 border border-gray-200 bg-white text-gray-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
-            >
-              <Layout className="h-4 w-4" /> Change Template
-            </button>
-            <button
-              onClick={() => setShowPreviewMobile(!showPreviewMobile)}
-              className="md:hidden flex items-center gap-1.5 border border-gray-200 bg-white text-gray-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-50"
-            >
-              <Eye className="h-4 w-4" /> Preview
-            </button>
-            <button
-              onClick={handleSaveAndPreview}
-              disabled={isSaving}
-              className="flex items-center gap-2 bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 disabled:opacity-50 transition-colors shadow-sm"
-            >
-              <Save className="h-4 w-4" />
-              {isSaving ? 'Saving...' : 'Save & Preview'}
-            </button>
+            <div className="flex gap-2 items-center flex-wrap">
+              <div className="text-xs text-gray-500 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">
+                {autoSaveStatus === 'saving' && '💾 Saving...'}
+                {autoSaveStatus === 'saved' && lastSaved && `✓ Saved ${new Date(lastSaved).toLocaleTimeString()}`}
+                {autoSaveStatus === 'error' && '⚠ Save failed'}
+              </div>
+              <button
+                onClick={() => setShowTemplateSelector(true)}
+                className="flex items-center gap-2 border-2 border-gray-200 bg-white text-gray-700 px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-gray-50 hover:border-gray-300 transition-all"
+              >
+                <Layout className="h-4 w-4" /> Template
+              </button>
+              <button
+                onClick={() => setShowPreviewMobile(!showPreviewMobile)}
+                className="md:hidden flex items-center gap-2 border-2 border-gray-200 bg-white text-gray-700 px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all"
+              >
+                <Eye className="h-4 w-4" /> Preview
+              </button>
+              <button
+                onClick={handleSaveAndPreview}
+                disabled={isSaving}
+                className="flex items-center gap-2 bg-slate-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-800 disabled:opacity-50 transition-all shadow-md hover:shadow-lg"
+              >
+                <Save className="h-4 w-4" />
+                {isSaving ? 'Saving...' : 'Save & Preview'}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -233,23 +250,25 @@ export default function Builder() {
           {/* Left: Editor */}
           <div className="space-y-4">
             {/* Input method tabs */}
-            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-              <div className="flex border-b border-gray-100">
+            <div className="bg-white rounded-2xl border-2 border-gray-200 overflow-hidden shadow-md">
+              <div className="flex border-b-2 border-gray-100 bg-gray-50">
                 {[['paste', Type, 'Paste Text'], ['upload', Upload, 'Upload File'], ['form', FileText, 'Manual Form']].map(([key, Icon, label]) => (
                   <button
                     key={key}
                     onClick={() => setActiveTab(key)}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-medium transition-colors ${activeTab === key ? 'bg-slate-50 text-slate-700 border-b-2 border-slate-700' : 'text-gray-500 hover:text-gray-700'}`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-sm font-bold transition-all ${activeTab === key ? 'bg-white text-slate-700 border-b-3 border-slate-700 shadow-sm' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`}
                   >
-                    <Icon className="h-3.5 w-3.5" /> {label}
+                    <Icon className="h-4 w-4" /> {label}
                   </button>
                 ))}
               </div>
 
-              <div className="p-4">
-                {activeTab === 'paste' && (
+              <div className="p-6">\n                {activeTab === 'paste' && (
                   <div>
-                    <p className="text-xs text-gray-500 mb-3">Paste anything — LinkedIn bio, old resume text, or rough notes. AI will structure it perfectly.</p>
+                    <p className="text-sm text-gray-600 mb-4 leading-relaxed flex items-start gap-2">
+                      <Sparkles className="h-4 w-4 text-purple-500 mt-0.5 flex-shrink-0" />
+                      Paste anything — LinkedIn bio, old resume text, or rough notes. AI will structure it perfectly.
+                    </p>
                     <textarea
                       value={pasteText}
                       onChange={e => setPasteText(e.target.value)}
@@ -260,9 +279,9 @@ export default function Builder() {
                     <button
                       onClick={handleParseText}
                       disabled={aiLoading || !pasteText.trim()}
-                      className="mt-3 w-full flex items-center justify-center gap-2 bg-slate-700 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-800 disabled:opacity-50 transition-colors"
+                      className="mt-4 w-full flex items-center justify-center gap-2 bg-gradient-to-r from-slate-700 to-slate-800 text-white py-3 rounded-xl text-sm font-bold hover:from-slate-800 hover:to-slate-900 disabled:opacity-50 transition-all shadow-md hover:shadow-lg"
                     >
-                      <Sparkles className="h-4 w-4" />
+                      <Sparkles className="h-5 w-5" />
                       {aiLoading ? 'AI is building your resume...' : 'Build Resume with AI'}
                     </button>
                   </div>
@@ -270,14 +289,17 @@ export default function Builder() {
 
                 {activeTab === 'upload' && (
                   <div>
-                    <p className="text-xs text-gray-500 mb-3">Upload your existing resume (PDF or DOCX). AI will extract and rebuild it professionally.</p>
+                    <p className="text-sm text-gray-600 mb-4 leading-relaxed flex items-start gap-2">
+                      <Upload className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                      Upload your existing resume (PDF or DOCX). AI will extract and rebuild it professionally.
+                    </p>
                     <div
                       onClick={() => fileRef.current?.click()}
-                      className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center cursor-pointer hover:border-slate-400 hover:bg-slate-50 transition-colors"
+                      className="border-2 border-dashed border-gray-300 rounded-2xl p-10 text-center cursor-pointer hover:border-slate-500 hover:bg-slate-50 transition-all"
                     >
-                      <Upload className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500">{uploading ? 'Processing file...' : 'Click to upload PDF or DOCX'}</p>
-                      <p className="text-xs text-gray-400 mt-1">Max 5MB</p>
+                      <Upload className="h-10 w-10 text-gray-400 mx-auto mb-3" />
+                      <p className="text-sm font-medium text-gray-700">{uploading ? 'Processing file...' : 'Click to upload PDF or DOCX'}</p>
+                      <p className="text-xs text-gray-500 mt-2">Max 5MB</p>
                     </div>
                     <input ref={fileRef} type="file" accept=".pdf,.doc,.docx" onChange={handleFileUpload} className="hidden" />
                   </div>
@@ -286,12 +308,12 @@ export default function Builder() {
                 {activeTab === 'form' && (
                   <div>
                     {/* Section navigation */}
-                    <div className="flex flex-wrap gap-1 mb-4">
+                    <div className="flex flex-wrap gap-2 mb-5">
                       {SECTIONS.map(s => (
                         <button
                           key={s}
                           onClick={() => setActiveSection(s)}
-                          className={`px-2.5 py-1 rounded-lg text-xs font-medium capitalize transition-colors ${activeSection === s ? 'bg-slate-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-all ${activeSection === s ? 'bg-slate-700 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                         >
                           {s}
                         </button>
@@ -598,7 +620,7 @@ export default function Builder() {
 
       <ChatAssistant
         resumeData={resumeData}
-        onResumeUpdate={setResumeData}
+        onResumeUpdate={(nextData) => setResumeData(sanitizeResumeData(nextData))}
         resumeId={currentResumeId}
       />
     </div>

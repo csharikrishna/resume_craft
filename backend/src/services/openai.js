@@ -100,7 +100,6 @@ CRITICAL RULES:
 
   try {
     const result = await callAI(sys, rawText, { userId, actionType: 'parse_text' });
-    console.log('Raw AI response (first 300):', result.substring(0, 300));
     return extractJSON(result);
   } catch (err) {
     console.error('Parse error:', err.message);

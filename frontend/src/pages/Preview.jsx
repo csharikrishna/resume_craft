@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Download, Edit, ArrowLeft, Eye, Sparkles, CheckCircle } from 'lucide-react';
+import { Download, Edit, ArrowLeft, Eye, CheckCircle } from 'lucide-react';
 import api from '../utils/api';
 import ResumePreview from '../components/ResumePreview';
 import ATSScore from '../components/ATSScore/ATSScore';
@@ -52,12 +52,19 @@ export default function Preview() {
 
       await html2pdf()
         .set({
-          margin: [0.3, 0.3, 0.3, 0.3],
+          margin: [0.4, 0.4, 0.4, 0.4],
           filename: fileName,
           image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-          jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
-          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            letterRendering: true,
+            logging: false,
+            windowWidth: 816,
+            windowHeight: 1056
+          },
+          jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait', compress: true },
+          pagebreak: { mode: ['avoid-all', 'css', 'legacy'], avoid: ['ul', 'li', '.experience-block', '.education-block', '.project-block'] }
         })
         .from(element)
         .save();
@@ -173,12 +180,6 @@ export default function Preview() {
               </button>
 
               <div className="border-t border-gray-100 pt-3 space-y-2">
-                {/* Premium template PDF */}
-                <button onClick={handlePdfDownload} disabled={!!exporting} className="w-full bg-purple-600 text-white py-2.5 rounded-xl text-sm font-medium hover:bg-purple-700 flex items-center justify-center gap-2 disabled:opacity-50">
-                  <Sparkles className="h-4 w-4" />
-                  {exporting === 'pdf' ? 'Generating...' : 'Premium Template + PDF'}
-                </button>
-
                 {/* DOCX */}
                 <button onClick={handleDocxDownload} disabled={!!exporting} className="w-full border border-gray-200 text-gray-700 py-2 rounded-xl text-sm font-medium hover:bg-gray-50 flex items-center justify-center gap-2 disabled:opacity-50">
                   <Download className="h-4 w-4" />

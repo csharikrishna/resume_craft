@@ -27,7 +27,7 @@ export default function App() {
   return (
     <AuthProvider>
       <ResumeProvider>
-        <BrowserRouter>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />

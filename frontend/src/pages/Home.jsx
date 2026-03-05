@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Zap, Target, FileText, Star, CheckCircle, Feather } from 'lucide-react';
+import { ArrowRight, Zap, Target, FileText, Star, CheckCircle, Feather, Sparkles } from 'lucide-react';
 import Navbar from '../components/Navbar';
 
 const FEATURES = [
@@ -12,8 +12,8 @@ const FEATURES = [
 const STEPS = [
   { step: '01', title: 'Paste or Upload', desc: 'Add your details in any format — messy text, old PDF, or fill the form manually.' },
   { step: '02', title: 'AI Rebuilds It', desc: 'AI analyzes like an HR expert and creates a professional, ATS-optimized resume.' },
-  { step: '03', title: 'Edit & Refine', desc: 'Tweak everything in the editor or use the AI chat coach. 3 free chats per day.' },
-  { step: '04', title: 'Pay & Download', desc: 'Pay just ₹29–39 to download your clean PDF. No subscription. Ever.' }
+  { step: '03', title: 'Edit & Refine', desc: 'Tweak everything in the editor or use the AI chat coach. Free AI assistance included.' },
+  { step: '04', title: 'Download & Apply', desc: 'Export your polished resume in PDF format. 100% FREE. No payment required.' }
 ];
 
 export default function Home() {
@@ -50,18 +50,18 @@ export default function Home() {
               View Templates
             </Link>
           </div>
-          <div className="mt-8 flex items-center justify-center gap-6 text-sm text-gray-500">
+          <div className="mt-8 flex items-center justify-center gap-6 text-sm text-gray-500 flex-wrap">
             <div className="flex items-center gap-1.5">
               <CheckCircle className="h-4 w-4 text-green-500" />
-              Free forever
+              100% Free Forever
             </div>
             <div className="flex items-center gap-1.5">
               <CheckCircle className="h-4 w-4 text-green-500" />
-              No credit card
+              No Credit Card
             </div>
             <div className="flex items-center gap-1.5">
               <CheckCircle className="h-4 w-4 text-green-500" />
-              Pay ₹29-39 to export
+              No Hidden Fees
             </div>
           </div>
         </div>
@@ -114,46 +114,54 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Pricing */}
+      {/* Free Pricing Banner */}
       <section className="py-24 px-4 bg-gradient-to-b from-gray-50 to-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-sm font-bold mb-6 shadow-sm">
-            <CheckCircle className="h-4 w-4" /> No Subscription, Pay Once
-          </div>
-          <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">Pay only when you download</h2>
-          <p className="text-gray-600 text-lg mb-12 max-w-2xl mx-auto">Build, edit, and refine for free. Pay once per resume when you're ready to export.</p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { label: 'PDF Export', price: '₹29', desc: 'Clean PDF, no watermark, free template' },
-              { label: 'Premium Template', price: '₹39', desc: 'Premium design + PDF export', popular: true },
-              { label: 'Cover Letter', price: '₹19', desc: 'AI-generated cover letter + export' }
-            ].map((p, i) => (
-              <div key={i} className={`relative border-2 rounded-3xl p-8 transition-all duration-300 hover:shadow-lg hover:-translate-y-2 ${p.popular ? 'border-amber-400 shadow-md bg-gradient-to-br from-amber-50 to-white' : 'border-gray-200 bg-white'}`}>
-                {p.popular && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-amber-600 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-lg">⭐ Most Popular</span>
-                  </div>
-                )}
-                <div className="text-5xl font-black text-gray-900 mb-2">{p.price}</div>
-                <div className="font-bold text-xl text-gray-800 mb-3">{p.label}</div>
-                <div className="text-gray-600 text-sm mb-6 leading-relaxed">{p.desc}</div>
-                <Link to="/builder" className={`block text-center py-3.5 rounded-xl font-bold transition-all duration-300 ${p.popular ? 'bg-slate-700 text-white hover:bg-slate-800 hover:shadow-lg' : 'bg-gray-100 text-gray-700 border-2 border-gray-200 hover:border-amber-300 hover:bg-amber-50'}`}>
-                  Get Started
-                </Link>
+        <div className="max-w-5xl mx-auto">
+          <div className="bg-gradient-to-br from-emerald-50 via-white to-blue-50 border-2 border-emerald-200 rounded-3xl p-12 md:p-16 text-center shadow-xl relative overflow-hidden">
+            {/* Decorative elements */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-100 rounded-full blur-3xl opacity-30 -mr-32 -mt-32"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-100 rounded-full blur-3xl opacity-30 -ml-32 -mb-32"></div>
+            
+            <div className="relative z-10">
+              <div className="inline-flex items-center gap-2 bg-emerald-600 text-white px-6 py-2.5 rounded-full text-sm font-bold mb-6 shadow-lg">
+                <CheckCircle className="h-5 w-5" /> Currently 100% FREE
               </div>
-            ))}
-          </div>
+              
+              <h2 className="text-4xl md:text-6xl font-black text-gray-900 mb-4 leading-tight">
+                Everything is <span className="text-emerald-600">FREE</span>
+              </h2>
+              
+              <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+                Build unlimited resumes. Use AI features. Download PDFs. Zero cost, zero catches.
+              </p>
 
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 text-gray-600 text-sm">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-emerald-600" />
-              <span className="font-medium">Building & editing always free</span>
-            </div>
-            <div className="hidden sm:block w-1 h-1 bg-gray-300 rounded-full"></div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-emerald-600" />
-              <span className="font-medium">3 AI chats per day included</span>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                {[
+                  { icon: Zap, title: 'Unlimited Resumes', desc: 'Create as many as you need' },
+                  { icon: Sparkles, title: 'AI Features', desc: 'Full AI optimization & chat' },
+                  { icon: FileText, title: 'PDF Download', desc: 'Export professional PDFs' }
+                ].map((f, i) => (
+                  <div key={i} className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 hover:shadow-lg transition-all duration-300">
+                    <div className="bg-emerald-100 rounded-xl p-3 w-fit mx-auto mb-4">
+                      <f.icon className="h-6 w-6 text-emerald-600" />
+                    </div>
+                    <h3 className="font-bold text-lg text-gray-900 mb-2">{f.title}</h3>
+                    <p className="text-gray-600 text-sm">{f.desc}</p>
+                  </div>
+                ))}
+              </div>
+
+              <Link 
+                to="/builder" 
+                className="inline-flex items-center gap-2 bg-slate-700 text-white px-10 py-4 rounded-xl font-bold hover:bg-slate-800 hover:shadow-lg transition-all duration-300 shadow-md"
+              >
+                Start Building Now — FREE
+                <ArrowRight className="h-5 w-5" />
+              </Link>
+
+              <p className="text-gray-500 mt-6 text-sm">
+                No payment method required • No trial period • No gotchas
+              </p>
             </div>
           </div>
         </div>

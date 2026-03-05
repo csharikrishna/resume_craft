@@ -1,20 +1,10 @@
 const express = require('express');
 const { Document, Paragraph, TextRun, HeadingLevel, AlignmentType, BorderStyle, Table, TableRow, TableCell, WidthType, Packer } = require('docx');
 const authMiddleware = require('../middleware/auth');
-const { getById, findAllByField } = require('../services/firestore');
+const { getById } = require('../services/firestore');
 
 const router = express.Router();
 router.use(authMiddleware);
-
-// Check export permission
-async function checkExportPermission(userId, resumeId, templateIsPremium) {
-  const actionType = templateIsPremium ? 'premium_template' : 'pdf_export';
-  const payments = await findAllByField('payments', 'userId', userId);
-  const payment = payments.find(
-    p => p.resumeId === resumeId && p.actionType === actionType && p.status === 'success'
-  );
-  return { allowed: !!payment, actionType };
-}
 
 // Generate HTML resume for PDF
 function generateResumeHTML(resumeData, templateId) {
@@ -42,7 +32,7 @@ function generateResumeHTML(resumeData, templateId) {
       .skills-list { display: flex; flex-wrap: wrap; gap: 6px; }
       .skill-tag { background: #f0f0f0; padding: 2px 8px; border-radius: 3px; font-size: 10px; }
       .edu-item { margin-bottom: 6px; }
-      .watermark { position: fixed; bottom: 20px; right: 20px; font-size: 9px; color: #ccc; }
+
     </style>
   `;
 
@@ -145,11 +135,6 @@ router.get('/:resumeId/docx', async (req, res) => {
   try {
     const resume = await getById('resumes', req.params.resumeId);
     if (!resume || resume.userId !== req.user.id) return res.status(404).json({ error: 'Resume not found' });
-
-    if (!resume) return res.status(404).json({ error: 'Resume not found' });
-
-    const { allowed } = await checkExportPermission(req.user.id, resume.id, false);
-    // temporary auto-allow
 
     const d = resume.resumeData;
     const personal = d.personal || {};

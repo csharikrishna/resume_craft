@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { sanitizeResumeData } from '../utils/resumeSanitizer';
 
 // ── Shared helpers ──────────────────────────────────────────────────────────
 function ContactLine({ parts, style }) {
@@ -12,7 +13,7 @@ function SectionTitle({ children, style }) {
 
 function ExperienceBlock({ exp, titleStyle, bodyStyle, dateColor }) {
   return (
-    <div style={{ marginBottom: '10px' }}>
+    <div className="experience-block" style={{ marginBottom: '10px', pageBreakInside: 'avoid' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <span style={titleStyle}>{exp.title}</span>
@@ -24,7 +25,7 @@ function ExperienceBlock({ exp, titleStyle, bodyStyle, dateColor }) {
         </span>
       </div>
       {exp.bullets?.length > 0 && (
-        <ul style={{ paddingLeft: '16px', marginTop: '4px' }}>
+        <ul style={{ paddingLeft: '16px', marginTop: '4px', pageBreakInside: 'avoid' }}>
           {exp.bullets.filter(Boolean).map((b, j) => (
             <li key={j} style={{ ...bodyStyle, marginBottom: '2px' }}>{b}</li>
           ))}
@@ -36,7 +37,7 @@ function ExperienceBlock({ exp, titleStyle, bodyStyle, dateColor }) {
 
 function EducationBlock({ edu, bodyStyle, dateColor }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+    <div className="education-block" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', pageBreakInside: 'avoid' }}>
       <div>
         <strong style={{ fontSize: '11px' }}>{edu.degree}</strong>
         {edu.institution && <span style={bodyStyle}> — {edu.institution}</span>}
@@ -49,7 +50,7 @@ function EducationBlock({ edu, bodyStyle, dateColor }) {
 
 function ProjectBlock({ proj, bodyStyle, linkColor, dateColor }) {
   return (
-    <div style={{ marginBottom: '8px' }}>
+    <div className="project-block" style={{ marginBottom: '8px', pageBreakInside: 'avoid' }}>
       <strong style={{ fontSize: '11px' }}>{proj.name}</strong>
       {proj.tech?.length > 0 && <span style={{ fontSize: '10px', color: dateColor }}> | {proj.tech.join(', ')}</span>}
       {proj.description && <p style={{ ...bodyStyle, marginTop: '2px' }}>{proj.description}</p>}
@@ -94,27 +95,28 @@ function LanguageTags({ languages, tagStyle }) {
 // TEMPLATE: ATS Classic — Clean single-column, maximum ATS compatibility
 // ══════════════════════════════════════════════════════════════════════════════
 function ATSClassicTemplate({ d, personal, contactParts, linkParts, allSkills }) {
-  const body = { fontSize: '10.5px', color: '#333' };
-  const st = { fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1.5px', borderBottom: '1px solid #999', paddingBottom: '3px', marginBottom: '8px', color: '#222' };
-  const jt = { fontWeight: 'bold', fontSize: '11px', color: '#111' };
-  const tag = { background: '#f3f4f6', padding: '2px 8px', borderRadius: '3px', fontSize: '10px', color: '#374151', border: '1px solid #e5e7eb' };
+  const body = { fontSize: '10px', color: '#333', lineHeight: '1.35' };
+  const st = { fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1.5px', borderBottom: '1px solid #999', paddingBottom: '2px', marginBottom: '6px', color: '#222' };
+  const jt = { fontWeight: 'bold', fontSize: '10.5px', color: '#111' };
+  const tag = { background: '#f3f4f6', padding: '1px 6px', borderRadius: '3px', fontSize: '9px', color: '#374151', border: '1px solid #e5e7eb' };
+  const section = { marginBottom: '10px', pageBreakInside: 'avoid' };
 
   return (
-    <div style={{ padding: '30px', fontFamily: 'Arial, Helvetica, sans-serif', color: '#333', lineHeight: '1.45' }}>
-      <div style={{ textAlign: 'center', borderBottom: '2px solid #1f2937', paddingBottom: '12px', marginBottom: '16px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111', letterSpacing: '0.5px', margin: 0 }}>{personal.name || 'Your Name'}</h1>
-        <ContactLine parts={contactParts} style={{ fontSize: '10px', color: '#555', marginTop: '5px' }} />
-        <ContactLine parts={linkParts} style={{ fontSize: '10px', color: '#555', marginTop: '2px' }} />
+    <div style={{ padding: '24px 28px', fontFamily: 'Arial, Helvetica, sans-serif', color: '#333', lineHeight: '1.35' }}>
+      <div style={{ textAlign: 'center', borderBottom: '2px solid #1f2937', paddingBottom: '10px', marginBottom: '12px' }}>
+        <h1 style={{ fontSize: '22px', fontWeight: 'bold', color: '#111', letterSpacing: '0.5px', margin: 0 }}>{personal.name || 'Your Name'}</h1>
+        <ContactLine parts={contactParts} style={{ fontSize: '9.5px', color: '#555', marginTop: '4px' }} />
+        <ContactLine parts={linkParts} style={{ fontSize: '9.5px', color: '#555', marginTop: '2px' }} />
       </div>
 
-      {d.summary && <div style={{ marginBottom: '14px' }}><SectionTitle style={st}>Professional Summary</SectionTitle><p style={{ ...body, lineHeight: '1.6' }}>{d.summary}</p></div>}
-      {d.experience?.length > 0 && <div style={{ marginBottom: '14px' }}><SectionTitle style={st}>Work Experience</SectionTitle>{d.experience.map((exp, i) => <ExperienceBlock key={i} exp={exp} titleStyle={jt} bodyStyle={body} dateColor="#666" />)}</div>}
-      {d.education?.length > 0 && <div style={{ marginBottom: '14px' }}><SectionTitle style={st}>Education</SectionTitle>{d.education.map((edu, i) => <EducationBlock key={i} edu={edu} bodyStyle={body} dateColor="#666" />)}</div>}
-      {allSkills.length > 0 && <div style={{ marginBottom: '14px' }}><SectionTitle style={st}>Skills</SectionTitle><SkillTags skills={allSkills} tagStyle={tag} /></div>}
-      {d.projects?.length > 0 && <div style={{ marginBottom: '14px' }}><SectionTitle style={st}>Projects</SectionTitle>{d.projects.map((p, i) => <ProjectBlock key={i} proj={p} bodyStyle={body} linkColor="#2563eb" dateColor="#555" />)}</div>}
-      {d.achievements?.length > 0 && <div style={{ marginBottom: '14px' }}><SectionTitle style={st}>Achievements</SectionTitle><ul style={{ paddingLeft: '16px' }}>{d.achievements.filter(Boolean).map((a, i) => <li key={i} style={{ ...body, marginBottom: '2px' }}>{a}</li>)}</ul></div>}
-      {d.certifications?.length > 0 && <div style={{ marginBottom: '14px' }}><SectionTitle style={st}>Certifications</SectionTitle>{d.certifications.map((c, i) => <CertBlock key={i} cert={c} bodyStyle={body} />)}</div>}
-      {d.languages?.length > 0 && <div style={{ marginBottom: '14px' }}><SectionTitle style={st}>Languages</SectionTitle><LanguageTags languages={d.languages} tagStyle={tag} /></div>}
+      {d.summary && <div style={section}><SectionTitle style={st}>Professional Summary</SectionTitle><p style={{ ...body, lineHeight: '1.5' }}>{d.summary}</p></div>}
+      {d.experience?.length > 0 && <div style={section}><SectionTitle style={st}>Work Experience</SectionTitle>{d.experience.map((exp, i) => <ExperienceBlock key={i} exp={exp} titleStyle={jt} bodyStyle={body} dateColor="#666" />)}</div>}
+      {d.education?.length > 0 && <div style={section}><SectionTitle style={st}>Education</SectionTitle>{d.education.map((edu, i) => <EducationBlock key={i} edu={edu} bodyStyle={body} dateColor="#666" />)}</div>}
+      {allSkills.length > 0 && <div style={section}><SectionTitle style={st}>Skills</SectionTitle><SkillTags skills={allSkills} tagStyle={tag} /></div>}
+      {d.projects?.length > 0 && <div style={section}><SectionTitle style={st}>Projects</SectionTitle>{d.projects.map((p, i) => <ProjectBlock key={i} proj={p} bodyStyle={body} linkColor="#2563eb" dateColor="#555" />)}</div>}
+      {d.achievements?.length > 0 && <div style={section}><SectionTitle style={st}>Achievements</SectionTitle><ul style={{ paddingLeft: '16px' }}>{d.achievements.filter(Boolean).map((a, i) => <li key={i} style={{ ...body, marginBottom: '2px' }}>{a}</li>)}</ul></div>}
+      {d.certifications?.length > 0 && <div style={section}><SectionTitle style={st}>Certifications</SectionTitle>{d.certifications.map((c, i) => <CertBlock key={i} cert={c} bodyStyle={body} />)}</div>}
+      {d.languages?.length > 0 && <div style={section}><SectionTitle style={st}>Languages</SectionTitle><LanguageTags languages={d.languages} tagStyle={tag} /></div>}
     </div>
   );
 }
@@ -473,7 +475,7 @@ const TEMPLATE_MAP = {
 };
 
 export default function ResumePreview({ resumeData, templateId = 'ats-classic', scale = 1 }) {
-  const d = resumeData || {};
+  const d = useMemo(() => sanitizeResumeData(resumeData || {}), [resumeData]);
   const personal = d.personal || {};
 
   const contactParts = [personal.email, personal.phone, personal.location].filter(Boolean);

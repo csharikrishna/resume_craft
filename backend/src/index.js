@@ -22,8 +22,10 @@ const configuredOrigins = [process.env.CORS_ORIGIN, process.env.FRONTEND_URL]
   .map(normalizeOrigin)
   .filter(Boolean);
 
+// Fallback for local dev if nothing configured
+const localDevOrigin = process.env.LOCAL_DEV_ORIGIN || 'http://localhost:5173';
 if (!configuredOrigins.length) {
-  configuredOrigins.push('http://localhost:5173');
+  configuredOrigins.push(localDevOrigin);
 }
 
 const corsOptions = {

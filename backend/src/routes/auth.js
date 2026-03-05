@@ -126,6 +126,62 @@ router.post('/login', authRateLimit, async (req, res) => {
   }
 });
 
+// Google OAuth Sign-In
+router.post('/google', authRateLimit, async (req, res) => {
+  try {
+    const { idToken } = req.body;
+    if (!idToken) return res.status(400).json({ error: 'ID token required' });
+
+    // Verify the Google ID token using Firebase Admin SDK
+    const decodedToken = await auth.verifyIdToken(idToken);
+    const { uid, email, name, picture } = decodedToken;
+
+    if (!email) return res.status(400).json({ error: 'Email required from Google account' });
+
+    let user = await getById('users', uid);
+    const now = new Date();
+
+    if (!user) {
+      // Create new user if doesn't exist
+      const createdAt = now.toISOString();
+      await createDoc('users', {
+        email,
+        name: name || email.split('@')[0],
+        photoURL: picture || null,
+        aiMessages: 5,
+        lastAiReset: createdAt,
+        createdAt,
+        updatedAt: createdAt
+      }, uid);
+      user = await getById('users', uid);
+    } else {
+      // Update existing user's last login
+      const lastReset = new Date(user.lastAiReset || now.toISOString());
+      if (!isSameDay(lastReset, now) && (user.aiMessages || 0) < 5) {
+        user = await updateDoc('users', uid, {
+          aiMessages: 5,
+          lastAiReset: now.toISOString(),
+          updatedAt: now.toISOString()
+        });
+      }
+    }
+
+    res.json({
+      token: idToken,
+      user: { 
+        id: user.id, 
+        email: user.email, 
+        name: user.name, 
+        photoURL: user.photoURL,
+        aiMessages: user.aiMessages ?? 5 
+      }
+    });
+  } catch (err) {
+    console.error('Google auth error:', err);
+    res.status(401).json({ error: 'Invalid Google authentication' });
+  }
+});
+
 // Get current user
 router.get('/me', authMiddleware, async (req, res) => {
   const user = req.user;

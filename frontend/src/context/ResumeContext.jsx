@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback } from 'react';
 import api from '../utils/api';
+import { sanitizeResumeData } from '../utils/resumeSanitizer';
 
 const ResumeContext = createContext(null);
 
@@ -59,7 +60,7 @@ export function ResumeProvider({ children }) {
   const loadResume = useCallback(async (id) => {
     const res = await api.get(`/api/resumes/${id}`);
     setCurrentResumeId(res.data.id);
-    setResumeData(res.data.resumeData || EMPTY_RESUME);
+    setResumeData(sanitizeResumeData(res.data.resumeData || EMPTY_RESUME));
     setSelectedTemplate(res.data.templateId || 'ats-classic');
     setJobRole(res.data.jobRole || '');
     return res.data;

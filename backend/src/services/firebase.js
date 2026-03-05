@@ -2,13 +2,35 @@ const admin = require('firebase-admin');
 const fs = require('fs');
 const path = require('path');
 
+function normalizeServiceAccount(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+
+  const projectId = raw.projectId || raw.project_id;
+  const clientEmail = raw.clientEmail || raw.client_email;
+  const privateKeyRaw = raw.privateKey || raw.private_key;
+  const privateKey = typeof privateKeyRaw === 'string'
+    ? privateKeyRaw.replace(/\\n/g, '\n').trim()
+    : '';
+
+  // Ignore placeholder values so local dev can fall back to ADC.
+  if (!projectId || !clientEmail || !privateKey || /YOUR_PRIVATE_KEY/i.test(privateKey)) {
+    return null;
+  }
+
+  return {
+    projectId,
+    clientEmail,
+    privateKey
+  };
+}
+
 function parseServiceAccount() {
   // Try file path first
   if (process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
     try {
       const filePath = path.resolve(process.env.FIREBASE_SERVICE_ACCOUNT_PATH);
       const content = fs.readFileSync(filePath, 'utf8');
-      return JSON.parse(content);
+      return normalizeServiceAccount(JSON.parse(content));
     } catch (err) {
       console.warn(`⚠ Could not load service account file (${process.env.FIREBASE_SERVICE_ACCOUNT_PATH}):`, err.message);
     }
@@ -17,7 +39,7 @@ function parseServiceAccount() {
   // Try JSON string
   if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
     try {
-      return JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+      return normalizeServiceAccount(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON));
     } catch (err) {
       console.warn('⚠ Could not parse FIREBASE_SERVICE_ACCOUNT_JSON:', err.message);
     }
@@ -29,11 +51,11 @@ function parseServiceAccount() {
     process.env.FIREBASE_CLIENT_EMAIL &&
     process.env.FIREBASE_PRIVATE_KEY
   ) {
-    return {
+    return normalizeServiceAccount({
       projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
-    };
+      privateKey: process.env.FIREBASE_PRIVATE_KEY
+    });
   }
 
   return null;
